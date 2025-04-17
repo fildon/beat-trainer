@@ -93,30 +93,28 @@ export function App() {
   const [three, setThree] = useState(false);
   const [playing, setPlaying] = useState(false);
   useEffect(() => {
+    Tone.getTransport().stop().cancel();
     if (playing) {
       // One
       new Tone.Loop(() => {
-        new Tone.Synth().toDestination().triggerAttackRelease("E4", "8n");
+        new Tone.Synth().toDestination().triggerAttackRelease("E4", "1i");
       }, 60 / bpm).start(0);
 
       if (two) {
         new Tone.Loop(() => {
-          new Tone.Synth().toDestination().triggerAttackRelease("C4", "32n");
+          new Tone.Synth().toDestination().triggerAttackRelease("C4", "1i");
         }, 60 / bpm / 2).start(0);
       }
 
       if (three) {
         new Tone.Loop(() => {
-          new Tone.Synth().toDestination().triggerAttackRelease("C4", "32n");
+          new Tone.Synth().toDestination().triggerAttackRelease("C4", "1i");
         }, 60 / bpm / 3).start(0);
       }
 
       Tone.getTransport().start();
-    } else {
-      Tone.getTransport().stop();
-      Tone.getTransport().cancel();
     }
-  }, [playing]);
+  }, [playing, bpm, two, three]);
   return (
     <>
       <h1>Beat Trainer</h1>
