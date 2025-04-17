@@ -113,6 +113,11 @@ export function App() {
     if (playing) {
       // Animate the vertical sweeping bar
       new Tone.Loop((transportTime) => {
+        /**
+         * TODO there's a bug here...
+         * The bar position gets desynched after a couple pause/play cycles.
+         * I can't find a good way to sync it with the _actual_ measure.
+         */
         Tone.getDraw().schedule(() => {
           const cycleDuration = 60 / bpm; // Duration of one beat cycle
           const normalizedTime =
@@ -124,19 +129,24 @@ export function App() {
 
       // One
       new Tone.Loop(() => {
-        new Tone.Synth().toDestination().triggerAttackRelease("E4", "1i");
+        new Tone.Synth().toDestination().triggerAttackRelease("A1", "1i");
       }, 60 / bpm).start(0);
 
       if (two) {
+        // For "twos" we only add the half measure beat.
         new Tone.Loop(() => {
-          new Tone.Synth().toDestination().triggerAttackRelease("C4", "1i");
-        }, 60 / bpm / 2).start(0);
+          new Tone.Synth().toDestination().triggerAttackRelease("A3", "1i");
+        }, 60 / bpm).start("0:1");
       }
 
       if (three) {
+        // For "threes" we add the second and third thirds.
         new Tone.Loop(() => {
-          new Tone.Synth().toDestination().triggerAttackRelease("C4", "1i");
-        }, 60 / bpm / 3).start(0);
+          new Tone.Synth().toDestination().triggerAttackRelease("A3", "1i");
+        }, 60 / bpm).start("4t");
+        new Tone.Loop(() => {
+          new Tone.Synth().toDestination().triggerAttackRelease("A3", "1i");
+        }, 60 / bpm).start((2 / 3) * (60 / bpm));
       }
 
       Tone.getTransport().start();
