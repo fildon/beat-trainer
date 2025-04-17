@@ -87,14 +87,41 @@ const BPMControl = ({
   );
 };
 
+const VisualSweeper = ({ position }: { position: number }) => (
+  <line
+    x1={position}
+    y1="50"
+    x2={position}
+    y2="550"
+    stroke="red"
+    strokeWidth="3"
+  />
+);
+
 export function App() {
   const [bpm, setBpm] = useState(60);
   const [two, setTwo] = useState(false);
   const [three, setThree] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [barPosition, setBarPosition] = useState(100);
+
+  const svgWidth = 600; // Width of the rhythm lines
+  const svgStartX = 100; // Starting X position of the rhythm lines
+
   useEffect(() => {
     Tone.getTransport().stop().cancel();
     if (playing) {
+      // Animate the vertical sweeping bar
+      new Tone.Loop((transportTime) => {
+        Tone.getDraw().schedule(() => {
+          const cycleDuration = 60 / bpm; // Duration of one beat cycle
+          const normalizedTime =
+            (transportTime % cycleDuration) / cycleDuration; // Normalize time to [0, 1]
+          const newPosition = svgStartX + normalizedTime * svgWidth; // Calculate new bar position
+          setBarPosition(newPosition);
+        }, transportTime);
+      }, "1i").start(0);
+
       // One
       new Tone.Loop(() => {
         new Tone.Synth().toDestination().triggerAttackRelease("E4", "1i");
@@ -115,6 +142,7 @@ export function App() {
       Tone.getTransport().start();
     }
   }, [playing, bpm, two, three]);
+
   return (
     <>
       <h1>Beat Trainer</h1>
@@ -154,6 +182,7 @@ export function App() {
         <RhythmLine yOffset={300} beatCount={3} />
         <RhythmLine yOffset={400} beatCount={4} />
         <RhythmLine yOffset={500} beatCount={6} />
+        <VisualSweeper position={barPosition} />
       </svg>
     </>
   );
